@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Liar's Dice</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;600&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="luxury-bg">
+        <div class="gold-light"></div>
+        <div class="gold-light"></div>
+        <div class="gold-light"></div>
+    </div>
+
+    <!-- Background Dice Animation -->
+    <div class="dice-decoration">
+        <!-- Dice will be added by JavaScript -->
+    </div>
+
+    <!-- Music Toggle Button -->
+    <div id="music-toggle" class="music-toggle">
+        <i id="music-icon" class="fas fa-volume"></i>
+    </div>
+
+    <!-- Main Menu Screen -->
+    <div class="screen" id="main-menu">
+        <div class="menu-container">
+            <div class="title-container">
+                <h1 class="game-title">LIAR'S</h1>
+                <div class="dice-shapes">
+                    <div class="dice-shape">⚄</div>
+                    <div class="dice-shape">⚅</div>
+                </div>
+                <h1 class="game-title">DICE</h1>
+            </div>
+            
+            <div class="chips-decoration">
+                <div class="chip gold large"></div>
+                <div class="chip red"></div>
+                <div class="chip blue"></div>
+                <div class="chip green"></div>
+                <div class="chip black"></div>
+            </div>
+            
+            <div class="menu-options">
+                <div class="menu-item" data-action="start">
+                    <div class="menu-icon"><i class="fas fa-play"></i></div>
+                    <h3>START GAME</h3>
+                </div>   
+                <div class="menu-item" data-action="rules">
+                    <div class="menu-icon"><i class="fas fa-book"></i></div>
+                    <h3>GAME RULES</h3>
+                </div>
+                <div class="menu-item" data-action="options">
+                    <div class="menu-icon"><i class="fas fa-cog"></i></div>
+                    <h3>OPTIONS</h3>
+                </div>
+            </div>
+            
+            <div class="credits">
+                <p>A game of deception and luck</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Options Screen -->
+    <div id="options-screen" class="screen hidden">
+        <div class="menu-container">
+            <h1 class="screen-title">OPTIONS</h1>
+            
+            <div class="options-content">
+                <div class="option-card">
+                    <div class="option-header">
+                        <i class="fas fa-music"></i>
+                        <h3>MUSIC VOLUME</h3>
+                    </div>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.1" value="0.4">
+                </div>
+                
+                <div class="option-card">
+                    <div class="option-header">
+                        <h3>SOUND EFFECTS</h3>
+                    </div>
+                    <input type="range" id="effects-slider" min="0" max="1" step="0.1" value="0.3">
+                </div>
+                <div class="option-card">
+                    <div class="option-header">
+                        <i class="fas fa-user-edit"></i>
+                        <h3>PLAYER NAME</h3>
+                    </div>
+                    <button id="change-name-btn" class="name-change-btn">
+                        <i class="fas fa-pencil-alt"></i> CHANGE NAME
+                    </button>
+                </div>
+            </div>
+            
+            <div class="back-to-menu">
+                <i class="fas fa-chevron-left"></i> MAIN MENU
+            </div>
+        </div>
+    </div>
+
+    <!-- Rules Screen -->
+    <div id="rules-screen" class="screen hidden">
+        <div class="menu-container">
+            <div class="back-to-menu" style="position: fixed; top: 20px; left: 20px;">
+                <i class="fas fa-chevron-left"></i> MAIN MENU
+            </div>
+            
+            <h1 class="screen-title">GAME RULES</h1>
+            
+            <div class="rules-content">
+                <div class="rules-card">
+                    <h3>How to Play Liar's Dice</h3>
+                    
+                    <div class="rules-section">
+                        <div class="rules-icon"><i class="fas fa-bullseye"></i></div>
+                        <div>
+                            <h4>Objective</h4>
+                            <p>Be the last player with dice remaining by correctly challenging opponents' bids or making bids they can't challenge.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="rules-section">
+                        <div class="rules-icon"><i class="fas fa-dice"></i></div>
+                        <div>
+                            <h4>Setup</h4>
+                            <ol>
+                                <li>Each player starts with 5 dice and a cup</li>
+                                <li>All players roll their dice simultaneously and keep them hidden under their cups</li>
+                                <li>Players take turns making bids about how many of a particular face are showing among all players' dice</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="rules-section">
+                        <div class="rules-icon"><i class="fas fa-flag"></i></div>
+                        <div>
+                            <h4>Gameplay</h4>
+                            <ol>
+                                <li>The first player makes a bid (e.g., "three fours")</li>
+                                <li>Each subsequent player must either raise the bid or challenge the previous bid</li>
+                                <li>To raise, you must increase either the quantity or the face value (e.g., "three fives" or "four twos")</li>
+                                <li>When a bid is challenged, all players reveal their dice</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="rules-section">
+                        <div class="rules-icon"><i class="fas fa-gavel"></i></div>
+                        <div>
+                            <h4>Resolving Challenges</h4>
+                            <ol>
+                                <li>If the challenged bid is correct or exceeded, the challenger loses one die</li>
+                                <li>If the bid was incorrect, the bidder loses one die</li>
+                                <li>The player who loses a die starts the next round</li>
+                                <li>When a player loses their last die, they're out of the game</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="rules-section">
+                        <div class="rules-icon"><i class="fas fa-star"></i></div>
+                        <div>
+                            <h4>Special Rules</h4>
+                            <ul>
+                                <li>Ones are often wild and count as any face (house rules may vary)</li>
+                                <li>Some variations allow "spot on" bids that are exactly correct to make the challenger lose a die</li>
+                                <li>In some versions, players can look at their own dice at any time</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="rules-section">
+                        <div class="rules-icon"><i class="fas fa-trophy"></i></div>
+                        <div>
+                            <h4>Winning</h4>
+                            <p>The last player with dice remaining wins the game. In tournament play, players might play multiple rounds with points awarded for wins.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen hidden">
+        <div class="back-to-menu" style="position: fixed; top: 10px; left: 10px; z-index: 10;">
+            <i class="fas fa-chevron-left"></i> MENU
+        </div>
+        
+        <div class="game-header">
+            <div class="player-info">
+                <div class="player-icon"><i class="fas fa-user"></i></div>
+                <div>
+                    <h3 class="player-name">PLAYER</h3>
+                    <div class="dice-count"><i class="fas fa-dice"></i> <span class="dice-count-number">5</span></div>
+                </div>
+            </div>
+            
+            <div class="game-controls">
+                <button id="roll-btn" class="game-btn gold-btn">
+                    <i class="fas fa-dice"></i> ROLL
+                </button>
+                <button id="hide-btn" class="game-btn red-btn">
+                    <i class="fas fa-eye-slash"></i> HIDE
+                </button>
+                <button id="show-btn" class="game-btn green-btn hidden">
+                    <i class="fas fa-eye"></i> SHOW
+                </button>
+                <button id="add-dice-btn" class="game-btn blue-btn">
+                    <i class="fas fa-plus"></i> DIE
+                </button>
+                <button id="remove-dice-btn" class="game-btn black-btn">
+                    <i class="fas fa-minus"></i> DIE
+                </button>
+            </div>
+        </div>
+        
+        <div class="game-dice-container">
+            <!-- Dice will be added here -->
+        </div>
+
+        <!-- New bottom section layout -->
+        <div class="game-bottom-section">
+            <div class="dice-results-container">
+                <div class="results-label">DICE RESULTS:</div>
+                <div class="results-icons" id="dice-results-display"></div>
+            </div>
+            
+            <div class="game-status">
+                <div id="current-bid">Current bid: None</div>
+                <div id="computer-info">
+                    <div class="computer-icon"><i class="fas fa-robot"></i></div>
+                    <div>
+                        <h3 class="computer-name">COMPUTER</h3>
+                        <div class="computer-dice-count"><i class="fas fa-dice"></i> <span id="computer-dice-count">5</span></div>
+                    </div>
+                </div>
+                <div id="game-message"></div>
+            </div>
+            
+            <div class="bidding-section">
+                <div class="bidding-controls">
+                    <div class="bid-inputs">
+                        <div class="bid-quantity">
+                            <button class="bid-arrow" id="decrease-quantity">-</button>
+                            <span id="bid-quantity-value">1</span>
+                            <button class="bid-arrow" id="increase-quantity">+</button>
+                        </div>
+                        <div class="bid-face">
+                            <button class="bid-arrow" id="decrease-face">-</button>
+                            <span id="bid-face-value">1</span>
+                            <button class="bid-arrow" id="increase-face">+</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bidding-controls2">
+                    <button id="make-bid-btn" class="game-btn gold-btn">
+                        <i class="fas fa-gavel"></i> BID
+                    </button>
+                    <button id="challenge-btn" class="game-btn red-btn">
+                        <i class="fas fa-hand-paper"></i> CHALLENGE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="screen hidden">
+        <div class="game-over-content">
+            <div class="result-icon">
+                <i class="fas fa-skull"></i>
+            </div>
+            <h2>GAME OVER</h2>
+            <div id="game-result">You're out of dice!</div>
+            <button id="play-again-btn" class="game-btn gold-btn">
+                <i class="fas fa-redo"></i> PLAY AGAIN
+            </button>
+            <div class="back-to-menu">
+                <i class="fas fa-chevron-left"></i> MAIN MENU
+            </div>
+        </div>
+    </div>
+
+    <audio loop id="bgMusic">
+        <source src="audio/bg-music.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="cupSound">
+        <source src="audio/table.mp3" type="audio/mpeg">
+    </audio>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.115/build/three.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.115/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="script.js"></script>
+
+    <div id="name-change-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Player Name</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="new-name-input">New Name:</label>
+                    <input type="text" id="new-name-input" maxlength="12" placeholder="Enter your name">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-name-change" class="modal-btn cancel-btn">Cancel</button>
+                <button id="confirm-name-change" class="modal-btn confirm-btn">Save</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
